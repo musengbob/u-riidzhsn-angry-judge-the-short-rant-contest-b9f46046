@@ -10,16 +10,27 @@ const LINE =
 
 const MAX_CHARS = 400;
 
-const charCount = [...LINE].length;
-if (charCount < 1 || charCount > MAX_CHARS) {
-  throw new Error(`entry is ${charCount} characters, must be 1-${MAX_CHARS}`);
+// Self-gate: the entry must be exactly one non-blank line of 1-400 code
+// points. Enforced here so the program fails loudly instead of writing a
+// line the competition would refuse.
+function validateEntry(line: string): number {
+  const count = [...line].length;
+  if (count < 1 || count > MAX_CHARS) {
+    throw new Error(`entry is ${count} characters, must be 1-${MAX_CHARS}`);
+  }
+  if (line.trim().length === 0) {
+    throw new Error("entry must not be blank");
+  }
+  if (line.includes("\n") || line.includes("\r")) {
+    throw new Error("entry must be a single line");
+  }
+  if (line !== line.trim()) {
+    throw new Error("entry must not start or end with whitespace");
+  }
+  return count;
 }
-if (LINE.trim().length === 0) {
-  throw new Error("entry must not be blank");
-}
-if (LINE.includes("\n") || LINE.includes("\r")) {
-  throw new Error("entry must be a single line");
-}
+
+const charCount = validateEntry(LINE);
 
 // Resolve where the entry goes. The grader runs the program with
 // $MAKEFUN_OUTPUT_DIR set to its writable output directory and reads the
